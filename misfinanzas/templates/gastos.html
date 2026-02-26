@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div class="user-info">
+        👤 {{ request.user.username }} | 
+        <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+    <h1>Mis Gastos</h1>
+    <style>
+        .user-info {
+            text-align: right;
+            padding: 10px;
+            margin: 1px
+        }
+        body {
+            font-family: 'Gill Sans';
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: left;
+            color: #333;
+            background-color: #ddd;
+            width: 225px;
+            padding: 5px 5px 5px 5px;
+            border: solid #333 3px;
+            border-radius: 10px;
+        }
+        h2 {
+            color: #333;
+            background-color: #ddd;
+            width: 95px;
+            padding: 5px 5px 5px 5px;
+            border: solid #333 3px;
+            border-radius: 10px;
+        }
+        ul {
+            text-align: justify;
+        }
+        .add-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            background: #0056b3;
+        }
+        .gasto {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+        }
+        .gasto h3 {
+            margin: 0 0 10px 0;
+            color: #28a745;
+        }
+        .gasto p {
+            margin: 5px 0;
+        }
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>💰 Mis Gastos</h1>
+    
+    <a href="{% url 'agregar' %}" class="add-btn">+ Agregar Gasto</a>
+    
+    {% if gastos %}
+        {% for gasto in gastos %}
+        <div class="gasto">
+            <h3>${{ gasto.precio }}</h3>
+            <p><strong>Categoría:</strong> {{ gasto.categoria }}</p>
+            <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
+            <p><strong>Fecha:</strong> {{ gasto.fecha }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <p>No hay gastos registrados aún.</p>
+            <p>¡Agrega tu primer gasto!</p>
+        </div>
+    {% endif %}
+</body>
+</html>
+
+<h2>Total: {{ total }}</h2>
+
+<ul>
+    {% for gasto in gastos %}
+        <li>{{ gasto.descripcion }} - {{ gasto.precio }}</li>
+    {% empty %}
+        <li>No hay gastos aún</li>
+    {% endfor %}
+</ul>
