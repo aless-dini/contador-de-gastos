@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
 from .models import Gasto
+from datetime import timedelta
+from django.utils import timezone
 
 def registro(request):
     if request.metod == "POST":
@@ -50,10 +52,27 @@ def logout_view(request):
 def gastos(request):
     gastos = Gasto.objects.filter(user=request.user).order_by("-fecha")
     
+    categoria = request.GET.get("categoria", "")
+    if categoria:
+        gastos = gastos.filter(categoria=categoria)
+    
+    categorias = Gasto.objects.filter(user=request.user).values_list('categoria', flat=True).distinct()
+    
+    periodo = request.GET.get("periodo", "")
+    hoy = timezone.now().date()
+    if periodo == "semana":
+        gastos = gastos.filter(fecha__gte=hoy - timedelta(days=7))
+    if periodo == "mes":
+        gastos = gastos.filter(fecha__year=hoy.year, fecha__month=hoy.month)
+    
     total = gastos.aggregate(Sum('precio'))['precio__sum'] or 0
+    
     return render(request, "gastos.html", {
         "gastos": gastos,
-        "total": total
+        "total": total,
+        "categorias": categorias,
+        "categoria_sel": categoria,
+        "periodo_sel": periodo
         })
 
 @login_required
@@ -68,25 +87,13 @@ def agregar_gasto(request):
             precio=precio,
             categoria=categoria,
             descripcion=descripcion,
-            fecha=fecha
+            fecha=fecha,
+            user=request.user
         )
         
         return redirect("gastos")
     
     return render(request, "agregar_gasto.html")
-
-@login_required
-def lista_gastos(request):
-    print("ENTRÉ A LISTA_GASTOS")
-    gastos = list(Gasto.objects.all())
-    total = sum(gasto.precio for gasto in gastos)
-    
-    print("TOTAL ES:", total)
-    
-    return render(request, "gastos.html", {
-        "gastos": gastos,
-        "total": total
-    })
 
 @login_required
 def editar_gastos(request, gasto_id):
