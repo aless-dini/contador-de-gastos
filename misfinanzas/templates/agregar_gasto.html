@@ -6,7 +6,7 @@
     <title>Agregar Gasto</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Gill Sans';
             max-width: 500px;
             margin: 50px auto;
             padding: 20px;
@@ -20,11 +20,14 @@
             border-radius: 8px;
         }
         label {
+            font-family: 'Gill Sans';
             display: block;
             margin-top: 10px;
             font-weight: bold;
         }
         input, textarea {
+            font-family: 'Gill Sans';
+            font-size: medium;
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -67,7 +70,7 @@
         {% csrf_token %}
         
         <label for="precio">Precio ($):</label>
-        <input type="number" id="precio" name="precio" required>
+        <input type="float" id="precio" name="precio" required>
         
         <label for="categoria">Categoría:</label>
         <input type="text" id="categoria" name="categoria" required>
@@ -75,8 +78,8 @@
         <label for="descripcion">Descripción:</label>
         <textarea id="descripcion" name="descripcion" rows="3" required></textarea>
         
-        <label for="fecha">Fecha (DD/MM):</label>
-        <input type="text" id="fecha" name="fecha" placeholder="15/01" required>
+        <label for="fecha">Fecha (AAAA-MM-DD):</label>
+        <input type="text" id="fecha" name="fecha" placeholder="0000-00-00" required>
         
         <button type="submit">Agregar Gasto</button>
     </form>
