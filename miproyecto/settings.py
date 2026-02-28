@@ -125,7 +125,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # le dice a Django dónde buscar los archivos
+]
+
 # Redirect después de login/logout
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'gastos'
 LOGOUT_REDIRECT_URL = 'login'
+
