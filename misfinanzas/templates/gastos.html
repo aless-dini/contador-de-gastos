@@ -10,20 +10,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
     <style>
+        html {
+            font-family: 'Urbanist', sans-serif;
+        }
         .user-info {
-            text-align: right;
-            padding: 10px;
-            margin: 1px;
-            background-color: #f4f4f4;
-            position: relative;
+            color: #333;
+            position: absolute;
+            right: 15px;
+            top: 25px;
+            transform: translateY(-50%);
             cursor: pointer;
+            font-size: large;
         }
         .dropdown-menu {
             display: none;
             position: absolute;
             background-color: white;
-            border: 1px solid #ccc;
-            padding: 8px;
+            padding: 5px;
             right: 0;
             top: 100%; /* aparece justo debajo del usuario */
         }
@@ -41,7 +44,6 @@
             color: black;
         }
         .categorias-periodo select{
-        font-family: 'Urbanist', sans-serif;
         margin-bottom: 20px;
         color: black;
         font-size: medium;
@@ -53,7 +55,6 @@
         background-color: #ddd;
         }
         .categorias-periodo button {
-        font-family: 'Urbanist', sans-serif;
         font-size: medium;
         cursor: pointer;
         border: solid 2.5px #333;
@@ -62,14 +63,33 @@
         .categorias-periodo button:hover {
         background-color: #ddd;
         }
-        body {
-            font-family: 'Urbanist', sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
+        header {
+            color: #333;
+            background-color: #ddd;
+            text-align: center;
+            padding: 3rem 2rem;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
         }
-        h1 {
-            text-align: left;
+        header div:first-child {
+            width: 150px;
+        }
+        header h1 {
+            font-size: 4rem;
+            padding: 5px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+        body {
+            margin: 15px;
+            justify-content: center;
+        }
+        .subtitulo {
             color: #333;
             background-color: #ddd;
             width: 160px;
@@ -96,20 +116,34 @@
             text-decoration: none;
             border-radius: 4px;
             margin-bottom: 20px;
+            margin-top: 20px
         }
         .add-btn:hover {
+            background: #0056b3;
+        }
+        .add-btn2 {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            margin-top: 20px
+        }
+        .add-btn2:hover {
             background: #0056b3;
         }
         .gasto {
             background: #f9f9f9;
             padding: 15px;
             margin-bottom: 10px;
-            border-left: 4px solid #28a745;
+            border-left: 4px solid darkgreen;
             border-radius: 4px;
         }
         .gasto h3 {
             margin: 0 0 10px 0;
-            color: #28a745;
+            color: darkgreen;
         }
         .gasto p {
             margin: 5px 0;
@@ -119,56 +153,90 @@
             color: #999;
             padding: 40px;
         }
+        footer section {
+            float: right;
+        }
+        footer a {
+            transition: color, 0.3s, ease;
+            float: right;
+            color: white;
+            text-decoration: none;
+        }
+        footer a:hover {
+            color: cornflowerblue;
+        }
+        footer {
+            background-color: #222;
+            padding: 3rem;
+            color: white;
+        }
+        footer p {
+            margin: auto;
+        }
     </style>
 </head>
 <body>
-    <div class="user-info" onclick="toggleMenu()">
-        {{ request.user.username }}
-        <img src="{% static 'image.png' %}" style="width: 20px; height: 20px; vertical-align: middle;"/>
-         |
-        <div class="dropdown-menu" id="dropdown-menu">
-        <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    <header>
+        <div></div>  <!-- elemento vacío para equilibrar -->
+        <h1 id="titulo">Contador de gastos</h1>
+        <div class="user-info" onclick="toggleMenu()">
+            {{ request.user.username }}
+            <img src="{% static 'image.png' %}" style="width: 20px; height: 20px; vertical-align: middle;"/>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="{% url 'logout' %}">Cerrar Sesión</a>
+            </div>
         </div>
-    </div>
-    <h1>Mis Gastos</h1>
-    
-    <a href="{% url 'agregar' %}" class="add-btn">+ Agregar Gasto</a>
+    </header>
 
-    <div class="categorias-periodo">
-        <form method="GET" action="{% url 'gastos' %}">
-            <select name="categoria">
-                <option value="">Todas las categorías</option>
-                {% for cat in categorias %}
-                <option value="{{ cat }}" {% if cat == categoria_sel %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
-            <select name="periodo">
-                <option value="">Todo el tiempo</option>
-                <option value="semana" {% if periodo_sel == "semana" %}selected{% endif %}>Esta semana</option>
-                <option value="mes" {% if periodo_sel == "mes" %}selected{% endif %}>Este mes</option>
-        </select>
-
-            <button type="submit">Filtrar</button>
-        </form>
-    </div>
+    <section class="container">
+        <h1 class="subtitulo">Mis Gastos</h1>
     
-    {% if gastos %}
-        {% for gasto in gastos %}
-        <div class="gasto">
-            <h3>${{ gasto.precio|floatformat:"3g" }}</h3>
-            <p><strong>Categoría:</strong> {{ gasto.categoria }}</p>
-            <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
-            <p><strong>Fecha:</strong> {{ gasto.fecha }}</p>
+        <a href="{% url 'agregar' %}" class="add-btn">+ Agregar Gasto</a>
+
+        <a href="{% url 'presupuesto' %}" class="add-btn2">+ Agregar Presupuesto</a>
+
+        <div class="categorias-periodo">
+            <form method="GET" action="{% url 'gastos' %}">
+                <select name="categoria">
+                    <option value="">Todas las categorías</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat }}" {% if cat == categoria_sel %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <select name="periodo">
+                    <option value="">Todo el tiempo</option>
+                    <option value="semana" {% if periodo_sel == "semana" %}selected{% endif %}>Esta semana</option>
+                    <option value="mes" {% if periodo_sel == "mes" %}selected{% endif %}>Este mes</option>
+                </select>
+
+                <button type="submit">Filtrar</button>
+            </form>
         </div>
+    
+        {% if gastos %}
+            {% for gasto in gastos %}
+                <div class="gasto">
+                    <h3>${{ gasto.precio|floatformat:"3g" }}</h3>
+                    <p><strong>Categoría:</strong> {{ gasto.categoria }}</p>
+                    <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
+                    <p><strong>Fecha:</strong> {{ gasto.fecha }}</p>
+                </div>
         {% endfor %}
-    {% else %}
-        <div class="empty">
-            <p>No hay gastos registrados aún.</p>
-            <p>¡Agrega tu primer gasto!</p>
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="empty">
+                <p>No hay gastos registrados aún.</p>
+                <p>¡Agrega tu primer gasto!</p>
+            </div>
+        {% endif %}
 
-    <h2>Total: {{ total|floatformat:"3g" }}</h2>
+        <h2>Total: {{ total|floatformat:"3g" }}</h2>
 
+    <footer>
+        <section>
+            <a href="#titulo">Volver al inicio</a>
+        </section>
+        <p>Copyright 2026</p>
+    </footer>
+    </section>
 </body>
 </html>
