@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
 from .models import Gasto
+from .models import Presupuesto
 from datetime import timedelta
 from django.utils import timezone
 
@@ -67,13 +68,41 @@ def gastos(request):
     
     total = gastos.aggregate(Sum('precio'))['precio__sum'] or 0
     
+    gastos_mes = Gasto.objects.filter(
+        user=request.user,
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(Sum('precio'))['precio__sum'] or 0
+    
+    try:
+        presupuesto = Presupuesto.objects.get(
+            user=request.user,
+            mes=hoy.month,
+            año=hoy.year
+        )
+        limite = presupuesto.monto
+    except Presupuesto.DoesNotExist:
+        limite = None
+    
+    # Alertas
+    alerta = None
+    if limite:
+        porcentaje = (gastos_mes / float(limite)) * 100
+        if porcentaje >= 100:
+            alerta = "excedido"
+        elif porcentaje >= 80:
+            alerta = "cerca"
+    
     return render(request, "gastos.html", {
         "gastos": gastos,
         "total": total,
         "categorias": categorias,
         "categoria_sel": categoria,
-        "periodo_sel": periodo
-        })
+        "periodo_sel": periodo,
+        "gastos_mes": gastos_mes,
+        "limite": limite,
+        "alerta": alerta,
+    })
 
 @login_required
 def agregar_gasto(request):
@@ -117,6 +146,28 @@ def eliminar_gastos(request, gasto_id):
     messages.success(request, "Gasto eliminado correctamente")
     return redirect("gastos")
         
+@login_required
+def agregar_presupuesto(request):
+    if request.method == "POST":
+        monto = request.POST["monto"]
+        mes = request.POST["mes"]
+        año = request.POST["año"]
         
+        if Presupuesto.objects.filter(user=request.user, mes=mes, año=año).exists():
+            messages.error(request, "Ya tienes un presupuesto para ese mes")
+            return redirect("agregar_presupuesto")
         
-        
+        Presupuesto.objects.create(
+            user=request.user,
+            monto=monto,
+            mes=mes,
+            año=año
+        )
+        messages.success(request, "Presupuesto guardado correctamente")
+        return redirect(gastos)
+
+    hoy = timezone.now().date()
+    return render (request, "agregar_presupuesto.html", {
+        "mes_actual": hoy.month,
+        "año_actual": hoy.year,
+    })
