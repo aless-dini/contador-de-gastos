@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Gill Sans';
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        label {
+            font-family: 'Gill Sans';
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        input {
+            font-family: 'Gill Sans';
+            font-size: medium;
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        a {
+            font-size: large;
+            border: solid black 1px;
+            background-color: #dddddd;
+            padding: 5px 5px 5px 5px;
+            display: inline-block;
+            margin-top: 10px;
+            color: black;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agregar nuevo presupuesto</h1>
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="monto">Monto ($)</label>
+        <input type="float" id="monto" name="monto" required>
+
+        <label for="mes">Mes</label>
+        <input type="text" id="mes" name="mes" required>
+
+        <label for="año">Año</label>
+        <input type="text" id="año" name="año" required>
+        <br>
+        <button type="submit">Agregar presupuesto</button>
+    </form>
+
+    <a href="{% url 'gastos' %}">← Volver a la página principal</a>
+</body>
+</html>
