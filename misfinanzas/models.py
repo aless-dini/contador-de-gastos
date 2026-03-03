@@ -15,5 +15,13 @@ class Gasto(models.Model):
         return f"{self.categoria} - ${self.precio}"
 
 class Presupuesto(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    limite_mensual = models.FloatField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    monto = models.FloatField()
+    mes = models.IntegerField()
+    año = models.IntegerField()
+
+    class Meta:
+        unique_together = ['user', 'mes', 'año']  # un presupuesto por mes por usuario
+
+    def __str__(self):
+        return f"{self.user} - {self.mes}/{self.año}"
