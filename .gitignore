@@ -2,6 +2,8 @@
 *.pyc
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 
 # Django
 *.log
@@ -13,11 +15,29 @@ db.sqlite3-journal
 # Virtual Environment
 venv/
 env/
+ENV/
+.venv
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Secrets
+.env
+*.env
+secrets.py
+
+# NO IGNORAR MIGRATIONS
+# */migrations/*.py  ← NO pongas esto
