@@ -3,14 +3,16 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from .models import Gasto
 from .models import Presupuesto
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models.functions import TruncMonth
+import json
 
 def registro(request):
-    if request.metod == "POST":
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -33,7 +35,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f"!Bienvenido de vuelta, {username}1")
+                messages.success(request, f"!Bienvenido de vuelta, {username}")
                 return redirect("gastos")
             else: 
                 messages.error(request, "Usuario o contraseña incorrectos")
@@ -68,6 +70,26 @@ def gastos(request):
     
     total = gastos.aggregate(Sum('precio'))['precio__sum'] or 0
     
+    gastos_por_categoria = (
+        gastos
+        .values("categoria")
+        .annotate(total=Sum("precio"))
+        .order_by("-total")
+    )
+    categorias_grafico = [item["categoria"] for item in gastos_por_categoria]
+    totales_categoria = [float(item["total"]) for item in gastos_por_categoria]
+    
+    gastos_por_mes = (
+        gastos
+        .annotate(mes=TruncMonth("fecha"))
+        .values("mes")
+        .annotate(total=Sum("precio"))
+        .order_by("mes")
+    )
+    
+    meses = [item["mes"].strftime("%B %Y") for item in gastos_por_mes]
+    totales_mes = [float(item["total"]) for item in gastos_por_mes]
+    
     gastos_mes = Gasto.objects.filter(
         user=request.user,
         fecha__year=hoy.year,
@@ -82,18 +104,18 @@ def gastos(request):
         )
         limite = presupuesto.monto
     except Presupuesto.DoesNotExist:
-        limite = None
+        limite = 1200000
     
     # Alertas
     alerta = None
     if limite:
-        porcentaje = (gastos_mes / float(limite)) * 100
-        if porcentaje >= 100:
+        porcentaje_presupuesto = (gastos_mes / float(limite)) * 100
+        if porcentaje_presupuesto >= 100:
             alerta = "excedido"
-        elif porcentaje >= 80:
+        elif porcentaje_presupuesto >= 80:
             alerta = "cerca"
     
-    return render(request, "gastos.html", {
+    context = {
         "gastos": gastos,
         "total": total,
         "categorias": categorias,
@@ -102,8 +124,14 @@ def gastos(request):
         "gastos_mes": gastos_mes,
         "limite": limite,
         "alerta": alerta,
-    })
-
+        "porcentaje_presupuesto" : round(porcentaje_presupuesto, 1),
+        "categorias_json": json.dumps(categorias_grafico),
+        "totales_cagegoria_json": json.dumps(totales_categoria),
+        "meses_json": json.dumps(meses),
+        "totales_mes_json": json.dumps(totales_mes),
+    }
+    
+    return render(request, "gastos_html", context)
 @login_required
 def agregar_gasto(request):
     if request.method == "POST":
