@@ -65,7 +65,7 @@ def gastos(request):
     hoy = timezone.now().date()
     if periodo == "semana":
         gastos = gastos.filter(fecha__gte=hoy - timedelta(days=7))
-    if periodo == "mes":
+    elif periodo == "mes":
         gastos = gastos.filter(fecha__year=hoy.year, fecha__month=hoy.month)
     
     total = gastos.aggregate(Sum('precio'))['precio__sum'] or 0
@@ -98,16 +98,17 @@ def gastos(request):
     
     try:
         presupuesto = Presupuesto.objects.get(
-            user=request.user,
-            mes=hoy.month,
-            año=hoy.year
+        user=request.user,
+        mes=hoy.month,
+        año=hoy.year
         )
         limite = presupuesto.monto
     except Presupuesto.DoesNotExist:
-        limite = 1200000
+        limite = None
     
     # Alertas
     alerta = None
+    porcentaje_presupuesto = 0
     if limite:
         porcentaje_presupuesto = (gastos_mes / float(limite)) * 100
         if porcentaje_presupuesto >= 100:
@@ -126,12 +127,12 @@ def gastos(request):
         "alerta": alerta,
         "porcentaje_presupuesto" : round(porcentaje_presupuesto, 1),
         "categorias_json": json.dumps(categorias_grafico),
-        "totales_cagegoria_json": json.dumps(totales_categoria),
+        "totales_categoria_json": json.dumps(totales_categoria),
         "meses_json": json.dumps(meses),
         "totales_mes_json": json.dumps(totales_mes),
     }
     
-    return render(request, "gastos_html", context)
+    return render(request, "gastos.html", context)
 @login_required
 def agregar_gasto(request):
     if request.method == "POST":
