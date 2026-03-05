@@ -9,234 +9,624 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        html {
-            font-family: 'Urbanist', sans-serif;
+        {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Gastos</title>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Pro</title>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .user-info {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .header h1 {
             color: #333;
-            position: absolute;
-            right: 15px;
-            top: 25px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: large;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .user-info:hover {
+            background: #f0f0f0;
+        }
+        
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
         .dropdown-menu {
             display: none;
             position: absolute;
-            background-color: white;
-            padding: 5px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 10px;
             right: 0;
-            top: 100%; /* aparece justo debajo del usuario */
+            top: 100%;
+            margin-top: 5px;
+            min-width: 150px;
+            z-index: 1000;
         }
+        
         .dropdown-menu.active {
             display: block;
         }
+        
         .dropdown-menu a {
-            color: #999;           
-            text-decoration: none;  
-            padding: 5px 10px;
-            border-radius: 4px;
-            display: block;         
+            color: #333;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: block;
+            transition: background 0.3s;
         }
+        
         .dropdown-menu a:hover {
-            color: black;
+            background: #f0f0f0;
         }
-        .categorias-periodo select{
-        margin-bottom: 20px;
-        color: black;
-        font-size: medium;
-        border: solid 2.5px #333;
-        cursor: pointer;
-        border-radius: 5px;
-        }
-        .categorias-periodo select:hover {
-        background-color: #ddd;
-        }
-        .categorias-periodo button {
-        font-size: medium;
-        cursor: pointer;
-        border: solid 2.5px #333;
-        border-radius: 5px;
-        }
-        .categorias-periodo button:hover {
-        background-color: #ddd;
-        }
-        header {
-            color: #333;
-            background-color: #ddd;
-            text-align: center;
-            padding: 3rem 2rem;
-            height: 100px;
+        
+        .buttons-row {
             display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .filters-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .filters-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .filters-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
             align-items: center;
-            justify-content: space-between;
-            position: relative;
         }
-        header div:first-child {
-            width: 150px;
+        
+        .filters-form select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            background: white;
+            transition: border-color 0.3s;
         }
-        header h1 {
-            font-size: 4rem;
-            padding: 5px;
-            position: absolute;
-            left: 0;
-            right: 0;
-            text-align: center;
+        
+        .filters-form select:hover,
+        .filters-form select:focus {
+            border-color: #667eea;
+            outline: none;
         }
-        body {
-            margin: 15px;
-            justify-content: center;
-        }
-        .subtitulo {
-            color: #333;
-            background-color: #ddd;
-            width: 160px;
-            padding: 5px 5px 5px 5px;
-            border: solid #333 3px;
-            border-radius: 10px;
-        }
-        h2 {
-            color: #333;
-            background-color: #ddd;
-            width: 160px;
-            padding: 5px 5px 5px 5px;
-            border: solid #333 3px;
-            border-radius: 10px;
-        }
-        ul {
-            text-align: justify;
-        }
-        .add-btn {
-            display: inline-block;
+        
+        .filters-form button {
             padding: 10px 20px;
-            background: #007bff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            margin-top: 20px
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.3s;
         }
-        .add-btn:hover {
-            background: #0056b3;
+        
+        .filters-form button:hover {
+            transform: translateY(-2px);
         }
-        .add-btn2 {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
+        
+        .presupuesto-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 4px;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .presupuesto-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .presupuesto-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .presupuesto-card p {
+            margin: 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+        }
+
+    .chart-container {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-container h2 {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 1.3em;
+    }
+
+    .chart-container canvas {
+        flex: 1;
+        min-height: 0;
+    }
+        
+        .gastos-list h2 {
+            color: #333;
             margin-bottom: 20px;
-            margin-top: 20px
+            font-size: 1.5em;
         }
-        .add-btn2:hover {
-            background: #0056b3;
+        
+        .gasto-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
         }
-        .gasto {
-            background: #f9f9f9;
-            padding: 15px;
+        
+        .gasto-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .gasto-item h3 {
+            color: #667eea;
             margin-bottom: 10px;
-            border-left: 4px solid darkgreen;
-            border-radius: 4px;
+            font-size: 1.5em;
         }
-        .gasto h3 {
-            margin: 0 0 10px 0;
-            color: darkgreen;
-        }
-        .gasto p {
+        
+        .gasto-item p {
+            color: #666;
             margin: 5px 0;
         }
+        
         .empty {
             text-align: center;
+            padding: 60px 20px;
             color: #999;
-            padding: 40px;
         }
-        footer section {
-            float: right;
+        
+        .empty h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
         }
-        footer a {
-            transition: color, 0.3s, ease;
-            float: right;
+        
+        .total-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
-        footer a:hover {
-            color: cornflowerblue;
+        
+        .total-card h2 {
+            font-size: 2em;
         }
-        footer {
-            background-color: #222;
-            padding: 3rem;
-            color: white;
+        
+        /* Debug box */
+        .debug-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.9em;
         }
-        footer p {
-            margin: auto;
+        
+        .debug-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .debug-box pre {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div></div>  <!-- elemento vacío para equilibrar -->
-        <h1 id="titulo">Contador de gastos</h1>
-        <div class="user-info" onclick="toggleMenu()">
-            {{ request.user.username }}
-            <img src="{% static 'image.png' %}" style="width: 20px; height: 20px; vertical-align: middle;"/>
-            <div class="dropdown-menu" id="dropdown-menu">
-                <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Contador De Gastos</h1>
+            <div class="user-info" onclick="toggleMenu()">
+                <span>{{ request.user.username }}</span>
+                <img src="{% static 'image.png' %}" alt="User" class="user-icon" onerror="this.style.display='none'"/>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <a href="{% url 'logout' %}">Cerrar Sesión</a>
+                </div>
             </div>
         </div>
-    </header>
-
-    <section class="container">
-        <h1 class="subtitulo">Mis Gastos</h1>
-    
-        <a href="{% url 'agregar' %}" class="add-btn">+ Agregar Gasto</a>
-
-        <a href="{% url 'presupuesto' %}" class="add-btn2">+ Agregar Presupuesto</a>
-
-        <div class="categorias-periodo">
-            <form method="GET" action="{% url 'gastos' %}">
+        
+        <!-- Buttons -->
+        <div class="buttons-row">
+            <a href="{% url 'agregar_gasto' %}" class="btn btn-primary">+ Agregar Gasto</a>
+            <a href="{% url 'presupuesto' %}" class="btn btn-secondary">+ Agregar Presupuesto</a>
+        </div>
+        
+        <!-- Presupuesto Info -->
+        {% if limite %}
+        <div class="presupuesto-card {% if alerta == 'excedido' or alerta == 'cerca' %}warning{% endif %}">
+            <h3>💳 Presupuesto del Mes</h3>
+            <p><strong>Gastado:</strong> ${{ gastos_mes }} de ${{ limite }}</p>
+            <p><strong>Porcentaje usado:</strong> {{ porcentaje_presupuesto }}%</p>
+            {% if alerta == 'excedido' %}
+                <p style="font-weight: bold; font-size: 1.2em;">⚠️ ¡Has excedido tu presupuesto!</p>
+            {% elif alerta == 'cerca' %}
+                <p style="font-weight: bold; font-size: 1.2em;">⚠️ Estás cerca de tu límite (80%+)</p>
+            {% else %}
+                <p style="font-weight: bold; font-size: 1.2em;">✅ Dentro del presupuesto</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Filters -->
+        <div class="filters-section">
+            <h3>🔍 Filtrar Gastos</h3>
+            <form method="GET" action="{% url 'gastos' %}" class="filters-form">
                 <select name="categoria">
                     <option value="">Todas las categorías</option>
                     {% for cat in categorias %}
                     <option value="{{ cat }}" {% if cat == categoria_sel %}selected{% endif %}>{{ cat }}</option>
                     {% endfor %}
                 </select>
+                
                 <select name="periodo">
                     <option value="">Todo el tiempo</option>
                     <option value="semana" {% if periodo_sel == "semana" %}selected{% endif %}>Esta semana</option>
                     <option value="mes" {% if periodo_sel == "mes" %}selected{% endif %}>Este mes</option>
                 </select>
-
-                <button type="submit">Filtrar</button>
+                
+                <button type="submit">Aplicar Filtros</button>
             </form>
         </div>
-    
+        
+        <!-- Charts -->
         {% if gastos %}
-            {% for gasto in gastos %}
-                <div class="gasto">
-                    <h3>${{ gasto.precio|floatformat:"3g" }}</h3>
+        <div class="charts-grid">
+            <div class="chart-container chart-torta">
+                <h2>📊 Gastos por Categoría</h2>
+                <canvas id="chartCategoria"></canvas>
+            </div>
+            
+            <div class="chart-container chart-barras">
+                <h2>📈 Gastos por Mes</h2>
+                <canvas id="chartMes"></canvas>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Lista de Gastos -->
+        <div class="gastos-list">
+            <h2>Últimos Gastos</h2>
+            
+            {% if gastos %}
+                {% for gasto in gastos|slice:":10" %}
+                <div class="gasto-item">
+                    <h3 class="precio" data-valor="{{gasto.precio}}">${{ gasto.precio|floatformat:0 }}</h3>
                     <p><strong>Categoría:</strong> {{ gasto.categoria }}</p>
                     <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
-                    <p><strong>Fecha:</strong> {{ gasto.fecha }}</p>
+                    <p><strong>Fecha:</strong> {{ gasto.fecha|date:"d/m/Y" }}</p>
                 </div>
-        {% endfor %}
-        {% else %}
-            <div class="empty">
-                <p>No hay gastos registrados aún.</p>
-                <p>¡Agrega tu primer gasto!</p>
-            </div>
-        {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="empty">
+                    <h3>📭 No hay gastos registrados</h3>
+                    <p>¡Agrega tu primer gasto para ver estadísticas!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Total -->
+        <div class="total-card">
+            <h2 data-valor="{{total}}">Total: ${{ total|floatformat:0 }}</h2>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle menu
+        function toggleMenu() {
+            const menu = document.getElementById('dropdown-menu');
+            menu.classList.toggle('active');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userInfo = document.querySelector('.user-info');
+            const menu = document.getElementById('dropdown-menu');
+            
+            if (userInfo && !userInfo.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+        
+        // Datos desde Django
+        console.log("=== INICIANDO GRÁFICOS ===");
+        
+        const categorias = {{ categorias_json|safe }};
+        const totalesCategoria = {{ totales_categoria_json|safe }};
+        const meses = {{ meses_json|safe }};
+        const totalesMes = {{ totales_mes_json|safe }};
+        
+        console.log("Categorías recibidas:", categorias);
+        console.log("Totales categoría recibidos:", totalesCategoria);
+        console.log("Meses recibidos:", meses);
+        console.log("Totales mes recibidos:", totalesMes);
+        
+        // Verificar que Chart.js está cargado
+        if (typeof Chart === 'undefined') {
+            console.error("❌ Chart.js NO se cargó correctamente");
+            alert("Error: Chart.js no se cargó. Verifica tu conexión a internet.");
+        } else {
+            console.log("✅ Chart.js cargado correctamente");
+        }
+        
+        const colores = [
+            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+            '#fa709a', '#fee140', '#30cfd0', '#330867'
+        ];
+        
+        // Gráfico de Categorías
+        if (categorias && categorias.length > 0 && totalesCategoria && totalesCategoria.length > 0) {
+            console.log("📊 Intentando crear gráfico de categorías...");
+            const ctxCategoria = document.getElementById('chartCategoria');
+            
+            if (ctxCategoria) {
+                try {
+                    new Chart(ctxCategoria.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: categorias,
+                            datasets: [{
+                                data: totalesCategoria,
+                                backgroundColor: colores,
+                                borderWidth: 3,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            aspectRatio: 1.25,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        padding: 15,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = context.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            label += '$' + context.parsed.toLocaleString('es-CL');
+                                            return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log("✅ Gráfico de categorías creado exitosamente");
+                } catch (error) {
+                    console.error("❌ Error al crear gráfico de categorías:", error);
+                }
+            } else {
+                console.error("❌ No se encontró el elemento canvas 'chartCategoria'");
+            }
+        } else {
+            console.log("ℹ️ No hay datos para gráfico de categorías");
+            console.log("  - categorias:", categorias);
+            console.log("  - totalesCategoria:", totalesCategoria);
+        }
+        
+        // Gráfico de Meses
+        if (meses && meses.length > 0 && totalesMes && totalesMes.length > 0) {
+            console.log("📈 Intentando crear gráfico de meses...");
+            const ctxMes = document.getElementById('chartMes');
+            
+            if (ctxMes) {
+                try {
+                    new Chart(ctxMes.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: meses,
+                            datasets: [{
+                                label: 'Gastos',
+                                data: totalesMes,
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderColor: 'rgba(102, 126, 234, 1)',
+                                borderWidth: 2,
+                                borderRadius: 8,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return '$' + context.parsed.y.toLocaleString('es-CL');
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + value.toLocaleString('es-CL');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log("✅ Gráfico de meses creado exitosamente");
+                } catch (error) {
+                    console.error("❌ Error al crear gráfico de meses:", error);
+                }
+            } else {
+                console.error("❌ No se encontró el elemento canvas 'chartMes'");
+            }
+        } else {
+            console.log("ℹ️ No hay datos para gráfico de meses");
+            console.log("  - meses:", meses);
+            console.log("  - totalesMes:", totalesMes);
+        }
+        
+        console.log("=== FIN INICIALIZACIÓN GRÁFICOS ===");
 
-        <h2>Total: {{ total|floatformat:"3g" }}</h2>
+        // Precios individuales
+        document.querySelectorAll('.precio').forEach(el => {
+            const valor = parseFloat(el.dataset.valor);
+            el.textContent = '$' + valor.toLocaleString('es-CL');
+        });
 
-    <footer>
-        <section>
-            <a href="#titulo">Volver al inicio</a>
-        </section>
-        <p>Copyright 2026</p>
-    </footer>
-    </section>
+        // Total
+        const totalEl = document.querySelector('.total-card h2');
+        if (totalEl) {
+            const valor = parseFloat(totalEl.dataset.valor);
+            totalEl.textContent = 'Total: $' + valor.toLocaleString('es-CL');
+        }
+    </script>
 </body>
 </html>
